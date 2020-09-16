@@ -1,0 +1,15 @@
+from mpi4py import MPI
+
+from asaptools import simplecomm
+
+rank = MPI.COMM_WORLD.Get_rank()
+size = MPI.COMM_WORLD.Get_size()
+
+serial = {{ serial }}
+comm = simplecomm.create_comm(serial=serial)
+
+comm_size = 1 if serial else size
+comm_rank = 0 if serial else rank
+
+assert comm.get_size() == comm_size
+assert comm.is_manager() is (comm_rank == 0)

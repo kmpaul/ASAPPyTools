@@ -1,0 +1,41 @@
+from mpi4py import MPI
+from numpy import arange
+
+from asaptools import simplecomm
+
+rank = MPI.COMM_WORLD.Get_rank()
+size = MPI.COMM_WORLD.Get_size()
+
+serial = {{ serial }}
+comm = simplecomm.create_comm(serial=serial)
+
+comm_size = 1 if serial else size
+comm_rank = 0 if serial else rank
+
+data = rank
+actual = comm.allreduce(data, 'max')
+expected = rank if serial else size - 1
+assert actual == expected
+
+data = range(2 + rank)
+actual = comm.allreduce(data, 'max')
+expected = rank + 1 if serial else size
+print(actual, expected)
+assert actual == expected
+
+data = list(range(2 + rank))
+actual = comm.allreduce(data, 'max')
+expected = rank + 1 if serial else size
+assert actual == expected
+
+data = arange(2 + rank)
+actual = comm.allreduce(data, 'max')
+expected = rank + 1 if serial else size
+assert actual == expected
+
+data = {'rank': rank, 'range': range(2 + rank)}
+actual = comm.allreduce(data, 'max')
+expected = {
+    'rank': rank if serial else size - 1,
+    'range': rank + 1 if serial else size}
+assert actual == expected

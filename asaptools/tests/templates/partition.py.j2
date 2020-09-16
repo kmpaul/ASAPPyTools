@@ -1,0 +1,25 @@
+from mpi4py import MPI
+from numpy import arange
+
+from asaptools import simplecomm
+from asaptools.partition import Duplicate, EqualStride
+
+rank = MPI.COMM_WORLD.Get_rank()
+size = MPI.COMM_WORLD.Get_size()
+
+comm = simplecomm.create_comm()
+
+involved = {{ involved }}
+
+data = 10 if comm.is_manager() else None
+actual = comm.partition(data, func=Duplicate(), involved=involved)
+expected = None if comm.is_manager() and not involved else 10
+assert actual == expected
+
+data = range(10) if comm.is_manager() else None
+actual = comm.partition(data, involved=involved)
+if involved:
+    expected = range(rank, 10, size)
+else:
+    expected = None if comm.is_manager() else range(rank - 1, 10, size - 1)
+assert actual == expected
