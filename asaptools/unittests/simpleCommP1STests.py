@@ -10,8 +10,6 @@ Copyright 2020, University Corporation for Atmospheric Research
 See the LICENSE.txt file for details
 """
 
-from __future__ import print_function
-
 import unittest
 
 import numpy as np
